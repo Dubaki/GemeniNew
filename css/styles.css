@@ -1,0 +1,438 @@
+:root {
+    --tg-theme-bg-color: #e6f7ff;
+    --tg-theme-text-color: #003366;
+    --tg-theme-button-color: #0099cc;
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #cceeff;
+    --accent-color: #0099cc;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    padding-bottom: 80px; /* Оставляем место для возможной панели корзины или MainButton */
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+header {
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 8px;
+}
+
+.cart-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tab-buttons {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--tg-theme-secondary-bg-color);
+}
+
+.tab-button {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    background: none;
+    border: none;
+    color: var(--tg-theme-text-color);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background-color: rgba(0, 153, 204, 0.2);
+}
+
+.tab-button.active {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.service-card {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.service-card:hover {
+    transform: scale(1.02);
+}
+
+.service-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    color: var(--accent-color);
+    background-color: rgba(0, 153, 204, 0.1);
+    border-radius: 12px;
+}
+
+.service-info {
+    flex: 1;
+}
+
+.service-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+
+.service-price {
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.service-description {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.add-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.add-button:hover {
+    transform: scale(1.05);
+}
+
+.add-button i {
+    margin-right: 4px;
+}
+
+.info-section {
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    margin-top: 30px;
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */ /* Можно убрать или оставить тень */
+}
+
+.address-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: rgba(0, 153, 204, 0.1);
+    border: 1px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%; /* Занимает всю ширину родителя */
+    box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
+    color: var(--tg-theme-text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    min-height: 100px;
+}
+
+.address-btn:hover {
+    background-color: rgba(0, 153, 204, 0.2);
+}
+
+.address-btn i {
+    margin-bottom: 10px;
+    color: var(--accent-color);
+    font-size: 28px;
+}
+
+.address-btn strong {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.cart-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--tg-theme-secondary-bg-color);
+    padding: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(100%);
+    transition: transform 0.3s;
+    z-index: 1000;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.cart-panel.visible {
+    transform: translateY(0);
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.cart-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.close-cart {
+    background: none;
+    border: none;
+    color: var(--tg-theme-text-color);
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.cart-items {
+    margin-bottom: 20px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Выравниваем по центру для кнопки удаления */
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 153, 204, 0.2);
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-info {
+    flex: 1;
+    margin-right: 10px; /* Добавим отступ от кнопки удаления */
+}
+
+.cart-item-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.cart-item-price {
+    color: var(--accent-color);
+}
+
+.cart-item-remove {
+    background: none;
+    border: none;
+    color: #ff4d4d;
+    cursor: pointer;
+    padding: 5px; /* Увеличим область клика */
+}
+
+.cart-item-remove i {
+    display: block; /* Чтобы иконка была блочным элементом для правильного размера */
+}
+
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin: 16px 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 153, 204, 0.2);
+}
+
+.cart-buttons {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.cart-button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    display: flex; /* Для выравнивания иконки загрузки */
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-cart {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #ff4d4d;
+}
+.clear-cart:hover {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+
+.submit-cart {
+    background-color: var(--accent-color);
+    color: white;
+}
+.submit-cart:hover {
+    background-color: #007baA; /* Немного темнее при наведении */
+}
+.submit-cart:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+.cart-phone {
+    margin-bottom: 16px;
+}
+
+.cart-phone input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background-color: var(--tg-theme-secondary-bg-color);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    max-width: 80%;
+    box-sizing: border-box;
+}
+
+.success-message.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.success-icon {
+    font-size: 48px;
+    color: #22c55e; /* Зеленый цвет для галочки */
+    margin-bottom: 16px;
+}
+
+.success-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: bold;
+    margin-top: 16px;
+    cursor: pointer;
+}
+.success-button:hover {
+    background-color: #007baA;
+}
+
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px; /* Отступ от текста, если он есть */
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

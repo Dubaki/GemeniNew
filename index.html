@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elmex Автосервис</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">ELMEX</div>
+            <p>Автосервис</p>
+            <div class="cart-icon" id="cartIcon">
+                <i data-feather="shopping-cart"></i>
+                <div class="cart-badge" id="cartBadge">0</div>
+            </div>
+        </header>
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="maintenance">Техобслуживание</button>
+            <button class="tab-button" data-tab="electrical">Электрика</button>
+        </div>
+        <div id="maintenance" class="tab-content active">
+            </div>
+        <div id="electrical" class="tab-content">
+            </div>
+        <div class="info-section">
+            <button class="address-btn" id="addressBtn">
+                <i data-feather="map-pin"></i>
+                <strong>Наш адрес</strong>
+                г. Екатеринбург, ул. Линейная 27
+            </button>
+        </div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <div class="cart-title">Корзина</div>
+            <button class="close-cart" id="closeCart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            </div>
+        <div class="cart-total">
+            <span>Итого:</span>
+            <span id="cartTotal">0 ₽</span>
+        </div>
+        <div class="cart-phone">
+            <label for="phoneInput" style="display: block; margin-bottom: 8px;">Ваш номер телефона:</label>
+            <input type="tel" id="phoneInput" name="phone" placeholder="+7 (___) ___-__-__" required pattern="\+7\s$[0-9]{3}$\s[0-9]{3}-[0-9]{2}-[0-9]{2}">
+        </div>
+        <div class="cart-buttons">
+            <button class="cart-button clear-cart" id="clearCart">Очистить</button>
+            <button class="cart-button submit-cart" id="submitCart">Оформить заказ</button>
+        </div>
+    </div>
+    <div class="success-message" id="successMessage">
+        <div class="success-icon">✓</div>
+        <h3>Заявка успешно отправлена!</h3>
+        <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения заказа.</p>
+        <button class="success-button" id="successButton">Отлично</button>
+    </div>
+
+    <script src="js/services.js" type="module"></script>
+    <script src="js/cart.js" type="module"></script>
+    <script src="js/telegram.js" type="module"></script>
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "my-car-service-telegram-app",
+  "version": "1.0.0",
+  "description": "Telegram Mini App for car service with Vercel serverless backend",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo \"No start script for frontend, deploy to Vercel. Backend is in /api\""
+  },
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": "18.x"
+  }
+}
