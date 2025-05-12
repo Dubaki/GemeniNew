@@ -5,12 +5,9 @@ export default function handler(req, res) {
 
   try {
     if (req.body) {
-      // Пытаемся преобразовать тело в строку для логирования.
-      // Если это уже объект (Vercel часто парсит JSON автоматически), JSON.stringify сработает.
-      // Если это строка или буфер, он тоже будет преобразован в строку.
       let bodyToLog;
       if (typeof req.body === 'object') {
-        bodyToLog = JSON.stringify(req.body, null, 2); // null, 2 для красивого вывода JSON
+        bodyToLog = JSON.stringify(req.body, null, 2);
       } else {
         bodyToLog = req.body.toString();
       }
@@ -18,11 +15,6 @@ export default function handler(req, res) {
     } else {
       console.log(`[${timestamp}] Full Minimal Logger: No request body.`);
     }
-
-    // Ваша логика обработки здесь (пока закомментирована)
-    // if (req.body && req.body.message && req.body.message.text === "оформить заказ") {
-    //   console.log(`[${timestamp}] Processing 'оформить заказ' command.`);
-    // }
 
     res.status(200).json({
       message: "Full Minimal Logger on Vercel received your request.",
