@@ -1,22 +1,50 @@
 // File: api/telegram-webhook.js
-
 export default function handler(req, res) {
-  // Лог №1: Запрос получен
-  console.log("--- Новый запрос получен ---");
-  console.log("Время:", new Date().toISOString());
-  console.log("Метод:", req.method);
-  console.log("URL:", req.url);
-  console.log("Заголовки:", JSON.stringify(req.headers, null, 2)); // Логируем заголовки
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] Full Minimal Logger: Request received! Method: ${req.method}, URL: ${req.url}`);
 
-  // Попытка логировать тело запроса.
-  // Для Vercel тело уже должно быть разобрано, если это JSON.
-  // Если тело приходит в другом формате или его нужно стримить, потребуется другой подход.
-  if (req.body) {
-    console.log("Тело запроса (req.body):", JSON.stringify(req.body, null, 2));
-  } else {
-    console.log("Тело запроса (req.body) отсутствует или не разобрано.");
+  try {
+    if (req.body) {
+      // Пытаемся преобразовать тело в строку для логирования.
+      // Если это уже объект (Vercel часто парсит JSON автоматически), JSON.stringify сработает.
+      // Если это строка или буфер, он тоже будет преобразован в строку.
+      let bodyToLog;
+      if (typeof req.body === 'object') {
+        bodyToLog = JSON.stringify(req.body, null, 2); // null, 2 для красивого вывода JSON
+      } else {
+        bodyToLog = req.body.toString();
+      }
+      console.log(`[${timestamp}] Full Minimal Logger: Request body: ${bodyToLog}`);
+    } else {
+      console.log(`[${timestamp}] Full Minimal Logger: No request body.`);
+    }
+
+    // Ваша логика обработки здесь (пока закомментирована)
+    // if (req.body && req.body.message && req.body.message.text === "оформить заказ") {
+    //   console.log(`[${timestamp}] Processing 'оформить заказ' command.`);
+    // }
+
+    res.status(200).json({
+      message: "Full Minimal Logger on Vercel received your request.",
+      receivedAt: timestamp,
+      method: req.method
+    });
+
+  } catch (error) {
+    console.error(`[${timestamp}] !!! ERROR in Full Minimal Logger !!!`);
+    console.error(`[${timestamp}] Error message: ${error.message}`);
+    console.error(`[${timestamp}] Error stack: ${error.stack}`);
+    if (req.body) {
+      try {
+        console.error(`[${timestamp}] Request body during error: ${JSON.stringify(req.body, null, 2)}`);
+      } catch (e) {
+        console.error(`[${timestamp}] Request body (raw) during error: ${req.body.toString()}`);
+      }
+    }
+    res.status(500).json({
+      message: "Error in Full Minimal Logger on Vercel.",
+      error: error.message,
+      receivedAt: timestamp
+    });
   }
-
-  // Важно! Отправляем ответ Telegram, чтобы он не повторял запросы.
-  res.status(200).json({ message: "Webhook received successfully by minimal logger" });
 }
