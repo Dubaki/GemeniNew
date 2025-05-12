@@ -1,4 +1,5 @@
-// Файл: GemeniNew/js/telegram.js
+// Файл: js/telegram.js (ПОЛНОСТЬЮ ЗАМЕНИТЬ НА ЭТОТ КОД ДЛЯ ТЕСТА)
+
 export let tg = window.Telegram && window.Telegram.WebApp;
 
 export function initTelegram() {
@@ -7,7 +8,7 @@ export function initTelegram() {
         tg = {
             WebApp: {
                 expand: () => console.log('MOCK: tg.WebApp.expand() called'),
-                MainButton: { 
+                MainButton: {
                     show: () => console.log('MOCK: tg.WebApp.MainButton.show()'),
                     hide: () => console.log('MOCK: tg.WebApp.MainButton.hide()'),
                     setText: (text) => console.log(`MOCK: tg.WebApp.MainButton.setText("${text}")`),
@@ -43,7 +44,7 @@ export function initTelegram() {
             }
         };
         // Поскольку tg.WebApp - это объект, присвоим его tg для единообразия с реальным API
-        tg = tg.WebApp; 
+        tg = tg.WebApp;
         console.log('Telegram WebApp не обнаружен. Используется режим тестирования (расширенный мок).');
     }
 
@@ -71,10 +72,7 @@ export function setTelegramTheme() {
         // Можно добавить --accent-color, если он должен меняться с темой
         // document.documentElement.style.setProperty('--accent-color', tg.themeParams.link_color || '#0099cc');
     } else {
-        // Фоллбэк на значения из CSS, если тема Telegram недоступна (например, в мок-режиме)
-        // или используем значения из :root в CSS как есть.
-        // Если в CSS уже есть --tg-theme-*, то можно не дублировать.
-        // Либо можно жестко задать светлую/темную тему по умолчанию для мока.
+        // Фоллбэк (можно оставить как есть, если CSS определяет значения по умолчанию)
         if (tg && tg.colorScheme === 'dark') {
              document.documentElement.style.setProperty('--tg-theme-bg-color', '#1E1E1E');
              document.documentElement.style.setProperty('--tg-theme-text-color', '#FFFFFF');
@@ -87,29 +85,15 @@ export function setTelegramTheme() {
     }
 }
 
-// Сюда мы позже добавим нашу безопасную функцию handleOrder, которая вызывает tg.sendData()
+// ВРЕМЕННАЯ ВЕРСИЯ ДЛЯ ТЕСТА: отправляет простую строку
 export function handleOrder(cartData, phone, comment) {
-    // Пока просто выводим в консоль или мок-алерт
-    const orderDetails = {
-        items: cartData.map(item => ({ id: item.id, title: item.title, quantity: item.quantity, price: item.price })),
-        totalPrice: cartData.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        phone: phone,
-        comment: comment, // Предполагается, что комментарий будет, если нет - пусто
-        userInfo: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : { first_name: "Test User" }
-    };
-
-    const orderDataString = JSON.stringify(orderDetails);
+    const testData = "TestData_123_From_MiniApp"; // Простая строка для теста
+    console.log("Attempting to send SIMPLE test data:", testData); // Логируем простую строку
 
     if (tg && tg.sendData) {
-        tg.sendData(orderDataString);
-        // Для отладки можно добавить tg.showAlert, но помним о проблемах с множественными вызовами
-        // tg.showAlert('Попытка отправки данных (НОВЫЙ ДИЗАЙН)');
-        console.log("Попытка отправки данных (НОВЫЙ ДИЗАЙН):", orderDataString);
-
-        // В этом дизайне есть свое сообщение об успехе, поэтому tg.close() может не понадобиться сразу
-        // или tg.showAlert для подтверждения отправки.
+        tg.sendData(testData); // Отправляем простую строку
     } else {
-        console.error("tg.sendData не доступен!");
+        console.error("tg.sendData is not available!");
     }
-    return true; // Для совместимости с логикой кнопки, которая ждет true/false
+    return true; // Можем оставить true для совместимости с app.js
 }
