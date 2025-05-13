@@ -1,12 +1,12 @@
 // Файл: js/services.js (ПОЛНАЯ ЗАМЕНА)
 
 import { cart } from './cart.js';
-import { tg } from './telegram.js'; // Для tg.HapticFeedback
+import { tg } from './telegram.js';
 
 const UNIQUE_HIGHLIGHT_COLORS = [
     '#4CAF50', '#2196F3', '#FF9800', '#9C27B0',
     '#E91E63', '#00BCD4', '#FF5722', '#8BC34A',
-    '#673AB7', '#03A9F4', '#FFEB3B', '#795548' 
+    '#673AB7', '#03A9F4', '#FFEB3B', '#795548'
 ];
 
 let colorIndex = 0;
@@ -18,7 +18,9 @@ function getNextHighlightColor() {
 
 export const services = {
     maintenance: [
-        { id: 'm1', title: 'Замена масла (НОВЫЙ ДИЗАЙН)', price: 1200, description: 'Полная замена масла и масляного фильтра.', icon: 'droplet', highlightColor: getNextHighlightColor() },
+        // === ИЗМЕНЕНО НАЗВАНИЕ УСЛУГИ ===
+        { id: 'm1', title: 'Замена масла', price: 1200, description: 'Полная замена масла и масляного фильтра.', icon: 'droplet', highlightColor: getNextHighlightColor() },
+        // ===============================
         { id: 'm2', title: 'Замена фильтров', price: 800, description: 'Замена воздушного, салонного и топливного фильтров.', icon: 'filter', highlightColor: getNextHighlightColor() },
         { id: 'm3', title: 'Диагностика подвески', price: 1500, description: 'Полная диагностика подвески.', icon: 'activity', highlightColor: getNextHighlightColor() },
         { id: 'm4', title: 'Замена тормозных колодок', price: 2000, description: 'Замена передних и задних колодок.', icon: 'shield', highlightColor: getNextHighlightColor() }
@@ -78,12 +80,12 @@ export function createServiceCard(service, addToCartCallback) {
     
     const addButton = card.querySelector('.add-button');
     if (isInCart) {
-        addButton.disabled = true; // Делаем неактивной, если уже в корзине
+        addButton.disabled = true;
     }
 
     addButton.addEventListener('click', e => {
         e.stopPropagation();
-        addToCartCallback(service); // addToCart теперь сама обновит кнопку, если нужно
+        addToCartCallback(service);
     });
     
     return card;
@@ -96,7 +98,11 @@ export function renderServices(containerId, serviceList, addToCartCallback) {
         return;
     }
     container.innerHTML = ''; 
-    colorIndex = 0;
+    // Важно сбрасывать colorIndex перед рендерингом каждой категории, если вы хотите,
+    // чтобы цвета не продолжались с предыдущей категории, а начинались заново из палитры
+    // или были более предсказуемыми для каждой категории.
+    // Если вы хотите абсолютно уникальные цвета для всех услуг подряд, закомментируйте строку ниже.
+    colorIndex = 0; 
 
     serviceList.forEach(service => {
         const card = createServiceCard(service, addToCartCallback);
