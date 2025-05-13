@@ -6,7 +6,7 @@
     --tg-theme-button-text-color: #ffffff;
     --tg-theme-secondary-bg-color: #cceeff;
     --accent-color: #0099cc;
-    --cart-icon-highlight-color: #FFC107; /* Новый цвет для подсветки иконки корзины (янтарный) */
+    --cart-icon-highlight-color: #FFC107; /* Цвет для подсветки иконки корзины */
 }
 
 body {
@@ -37,34 +37,30 @@ header {
     margin-bottom: 8px;
 }
 
-/* === СТИЛИ ДЛЯ ИКОНКИ КОРЗИНЫ В ШАПКЕ === */
 .cart-icon {
     position: absolute;
-    top: 15px; /* Немного подвинул для лучшего вида с тенью */
-    right: 15px; /* Немного подвинул */
+    top: 15px;
+    right: 15px;
     cursor: pointer;
-    padding: 5px; /* Добавим немного пространства вокруг иконки для тени */
-    border-radius: 8px; /* Скруглим углы для тени */
+    padding: 5px;
+    border-radius: 8px;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    z-index: 10; /* Чтобы была поверх других элементов, если что */
+    z-index: 10;
 }
 
-.cart-icon svg { /* Стили для самой SVG иконки внутри */
-    display: block; /* Убирает возможный лишний отступ снизу */
+.cart-icon svg {
+    display: block;
 }
-
 
 .cart-icon:hover {
-    transform: scale(1.15) rotate(5deg); /* Движение: увеличение и небольшой поворот */
-    box-shadow: 0 0 10px 2px var(--cart-icon-highlight-color); /* Подсветка по контуру */
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 0 10px 2px var(--cart-icon-highlight-color);
 }
-/* ======================================== */
-
 
 .cart-badge {
     position: absolute;
-    top: 0px;  /* Скорректировано положение */
-    right: 0px; /* Скорректировано положение */
+    top: 0px;
+    right: 0px;
     background-color: var(--accent-color);
     color: white;
     border-radius: 50%;
@@ -74,7 +70,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 11; /* Чтобы был поверх самой .cart-icon */
+    z-index: 11;
 }
 
 .tab-buttons {
@@ -125,24 +121,27 @@ header {
     background-color: var(--tg-theme-secondary-bg-color);
     border-radius: 12px;
     margin-bottom: 16px;
-    padding: 16px;
+    padding: 16px; /* Убедимся, что внутренний отступ не меняется рамкой */
     display: flex;
     align-items: center;
     position: relative;
-    overflow: hidden;
+    overflow: hidden; /* Можно оставить, если нет выходящих элементов тени */
+    /* Плавные переходы для рамки, тени и трансформации */
     transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-    border: 2px solid transparent; /* Базовая прозрачная рамка */
+    /* Устанавливаем прозрачную рамку, чтобы было место для цветной без скачка размера */
+    border: 2px solid transparent;
 }
 
-.service-card:hover {
-    transform: scale(1.02); /* Оставляем этот эффект, если нравится */
+/* Эффект увеличения при наведении на карточку (можно оставить или убрать, если мешает подсветке) */
+.service-card:hover:not(.selected-in-cart) { /* Увеличиваем только если не выбрана постоянно */
+    transform: scale(1.02);
 }
 
-/* Класс-маркер для выбранных, основные стили задаются через JS */
-.service-card.selected {
-    /* Сюда можно добавить стили, которые не зависят от цвета, если нужно,
-       например, чуть больший transform или еще что-то.
-       Сейчас вся подсветка (border-color и box-shadow) задается через JS.
+.service-card.selected-in-cart {
+    /* Этот класс используется как маркер в JS.
+       Стили подсветки (borderColor, boxShadow) применяются напрямую через JS.
+       Можно добавить сюда постоянный transform, если нужно, чтобы выбранные были чуть больше.
+       Например: transform: scale(1.01);
     */
 }
 
@@ -202,6 +201,8 @@ header {
     margin-right: 4px;
 }
 
+/* ... Остальные стили остаются без изменений (info-section, cart-panel, etc.) ... */
+/* Убедитесь, что скопировали весь CSS до конца, если заменяете файл целиком */
 .info-section {
     background-color: var(--tg-theme-secondary-bg-color);
     border-radius: 12px;
