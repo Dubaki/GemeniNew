@@ -2,54 +2,79 @@
 
 import { cart } from './cart.js'; // Для проверки, есть ли услуга в корзине
 
-// Примерные цвета для подсветки. Подберите свои!
-const HIGHLIGHT_COLORS = {
-    maintenance_default: '#FF9800', // Оранжевый для ТО
-    electrical_default: '#2196F3',   // Синий для электрики
-    // Можно задать уникальные цвета для каждого ID, если нужно больше разнообразия
-    m1_color: '#4CAF50', // Зеленый для замены масла
-    e1_color: '#F44336', // Красный для ремонта стартера
-};
+// Палитра уникальных цветов для подсветки. Добавьте/измените по вкусу.
+// Нужно как минимум 8 для ваших текущих услуг.
+const UNIQUE_HIGHLIGHT_COLORS = [
+    '#4CAF50', // Зеленый
+    '#2196F3', // Синий
+    '#FF9800', // Оранжевый
+    '#9C27B0', // Фиолетовый
+    '#E91E63', // Розовый
+    '#00BCD4', // Бирюзовый
+    '#FF5722', // Глубокий оранжевый
+    '#8BC34A', // Светло-зеленый
+    '#673AB7', // Глубокий фиолетовый
+    '#03A9F4', // Голубой
+];
+
+// Присваиваем цвета услугам. Если услуг больше, чем цветов, они начнут повторяться (или добавьте больше цветов).
+let colorIndex = 0;
+function getNextHighlightColor() {
+    const color = UNIQUE_HIGHLIGHT_COLORS[colorIndex % UNIQUE_HIGHLIGHT_COLORS.length];
+    colorIndex++;
+    return color;
+}
 
 export const services = {
     maintenance: [
-        { id: 'm1', title: 'Замена масла (НОВЫЙ ДИЗАЙН)', price: 1200, description: 'Полная замена масла и масляного фильтра.', icon: 'droplet', highlightColor: HIGHLIGHT_COLORS.m1_color },
-        { id: 'm2', title: 'Замена фильтров', price: 800, description: 'Замена воздушного, салонного и топливного фильтров.', icon: 'filter', highlightColor: HIGHLIGHT_COLORS.maintenance_default },
-        { id: 'm3', title: 'Диагностика подвески', price: 1500, description: 'Полная диагностика подвески.', icon: 'activity', highlightColor: HIGHLIGHT_COLORS.maintenance_default },
-        { id: 'm4', title: 'Замена тормозных колодок', price: 2000, description: 'Замена передних и задних колодок.', icon: 'shield', highlightColor: HIGHLIGHT_COLORS.maintenance_default }
+        { id: 'm1', title: 'Замена масла (НОВЫЙ ДИЗАЙН)', price: 1200, description: 'Полная замена масла и масляного фильтра.', icon: 'droplet', highlightColor: getNextHighlightColor() },
+        { id: 'm2', title: 'Замена фильтров', price: 800, description: 'Замена воздушного, салонного и топливного фильтров.', icon: 'filter', highlightColor: getNextHighlightColor() },
+        { id: 'm3', title: 'Диагностика подвески', price: 1500, description: 'Полная диагностика подвески.', icon: 'activity', highlightColor: getNextHighlightColor() },
+        { id: 'm4', title: 'Замена тормозных колодок', price: 2000, description: 'Замена передних и задних колодок.', icon: 'shield', highlightColor: getNextHighlightColor() }
     ],
     electrical: [
-        { id: 'e1', title: 'Ремонт стартера', price: 2500, description: 'Диагностика и ремонт стартера.', icon: 'power', highlightColor: HIGHLIGHT_COLORS.e1_color },
-        { id: 'e2', title: 'Ремонт генератора', price: 3000, description: 'Диагностика и ремонт генератора.', icon: 'battery-charging', highlightColor: HIGHLIGHT_COLORS.electrical_default },
-        { id: 'e3', title: 'Диагностика электросистемы', price: 1700, description: 'Полная диагностика электрической системы.', icon: 'zap', highlightColor: HIGHLIGHT_COLORS.electrical_default },
-        { id: 'e4', title: 'Установка сигнализации', price: 5000, description: 'Установка и настройка сигнализации.', icon: 'bell', highlightColor: HIGHLIGHT_COLORS.electrical_default }
+        { id: 'e1', title: 'Ремонт стартера', price: 2500, description: 'Диагностика и ремонт стартера.', icon: 'power', highlightColor: getNextHighlightColor() },
+        { id: 'e2', title: 'Ремонт генератора', price: 3000, description: 'Диагностика и ремонт генератора.', icon: 'battery-charging', highlightColor: getNextHighlightColor() },
+        { id: 'e3', title: 'Диагностика электросистемы', price: 1700, description: 'Полная диагностика электрической системы.', icon: 'zap', highlightColor: getNextHighlightColor() },
+        { id: 'e4', title: 'Установка сигнализации', price: 5000, description: 'Установка и настройка сигнализации.', icon: 'bell', highlightColor: getNextHighlightColor() }
     ]
 };
 
-// Функция для применения стилей подсветки
-function applyHighlightStyle(element, color) {
+// Функция для применения стилей подсветки (устанавливает inline-стили)
+export function applyCardHighlight(element, color) {
+    if (!element || !color) return;
     element.style.borderColor = color;
-    element.style.boxShadow = `0 0 10px 2px ${color}`; // Тень того же цвета
-    element.classList.add('selected'); // Добавляем класс-маркер
+    element.style.boxShadow = `0 0 10px 1px ${color}`; // Тень того же цвета
 }
 
-// Функция для снятия стилей подсветки
-function removeHighlightStyle(element) {
-    element.style.borderColor = ''; // Сбрасываем на значение из CSS или родителя
-    element.style.boxShadow = '';   // Сбрасываем тень
-    element.classList.remove('selected'); // Удаляем класс-маркер
+// Функция для снятия стилей подсветки (сбрасывает inline-стили)
+export function removeCardHighlight(element) {
+    if (!element) return;
+    element.style.borderColor = ''; // Вернет к значению из CSS (transparent)
+    element.style.boxShadow = '';   // Уберет тень
 }
-
 
 export function createServiceCard(service, addToCartCallback) {
     const card = document.createElement('div');
     card.className = 'service-card';
-    card.dataset.serviceId = service.id; // Для легкого доступа к элементу
+    card.dataset.serviceId = service.id;
 
-    // Проверяем, есть ли товар в корзине, и применяем подсветку при необходимости
+    // Если товар уже в корзине при начальной отрисовке, подсвечиваем его и добавляем класс
     if (cart.some(item => item.id === service.id)) {
-        applyHighlightStyle(card, service.highlightColor || HIGHLIGHT_COLORS.maintenance_default); // Фоллбэк на дефолтный цвет
+        card.classList.add('selected-in-cart'); // Маркер, что товар в корзине
+        applyCardHighlight(card, service.highlightColor);
     }
+
+    card.addEventListener('mouseenter', () => {
+        applyCardHighlight(card, service.highlightColor);
+    });
+
+    card.addEventListener('mouseleave', () => {
+        // Убираем подсветку при уходе мыши ТОЛЬКО ЕСЛИ товар не в корзине
+        if (!card.classList.contains('selected-in-cart')) {
+            removeCardHighlight(card);
+        }
+    });
 
     card.innerHTML = `
         <div class="service-icon"><i data-feather="${service.icon}"></i></div>
@@ -62,7 +87,6 @@ export function createServiceCard(service, addToCartCallback) {
             </button>
         </div>`;
     
-    // Кнопке "Добавить" передаем весь объект service, чтобы иметь доступ к highlightColor в addToCart
     card.querySelector('.add-button').addEventListener('click', e => {
         e.stopPropagation();
         addToCartCallback(service); // Передаем весь объект service
@@ -79,6 +103,11 @@ export function renderServices(containerId, serviceList, addToCartCallback) {
     }
     container.innerHTML = ''; 
     
+    // Сбрасываем colorIndex для каждой категории, чтобы цвета были разнообразнее, если категории рендерятся отдельно
+    // Если все услуги рендерятся одним вызовом, это не нужно.
+    // Для нашего случая (две категории рендерятся последовательно) это даст более разнообразные цвета.
+    colorIndex = 0;
+
     serviceList.forEach(service => {
         const card = createServiceCard(service, addToCartCallback);
         container.appendChild(card);
@@ -88,6 +117,3 @@ export function renderServices(containerId, serviceList, addToCartCallback) {
         feather.replace(); 
     }
 }
-
-// Экспортируем функции управления стилями, чтобы их можно было использовать в cart.js
-export { applyHighlightStyle, removeHighlightStyle };
