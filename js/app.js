@@ -1,50 +1,60 @@
-// Файл: GemeniNew/js/app.js
-import { services as serviceData, renderServices } from './services.js'; // Импортируем данные об услугах и функцию рендера
-import { cart, addToCart, renderCart, clearCart, showSuccessMessage } from './cart.js'; // Функции корзины
-import { tg, initTelegram, setTelegramTheme, handleOrder } from './telegram.js'; // Функции Telegram и наш handleOrder
-import { initTabs, initAddressButton, initCartControls } from './utils.js'; // Утилиты
+// Файл: js/app.js (ПОЛНАЯ ЗАМЕНА)
+import { services as serviceData, renderServices } from './services.js';
+import { cart, addToCart, renderCart, clearCart, showSuccessMessage } from './cart.js';
+import { tg, initTelegram, setTelegramTheme, handleOrder } from './telegram.js'; // handleOrder теперь async
+import { initTabs, initAddressButton, initCartControls } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Инициализация Telegram WebApp (создает мок, если не в Telegram)
-    initTelegram(); 
+    // 1. Инициализация Telegram WebApp
+    initTelegram();
 
-    // 2. Установка темы на основе Telegram или настроек ОС
+    // 2. Установка темы
     setTelegramTheme();
 
-    // 3. Инициализация вкладок ("Техобслуживание", "Электрика")
+    // 3. Инициализация вкладок
     initTabs();
 
-    // 4. Инициализация кнопки адреса (открывает карту)
+    // 4. Инициализация кнопки адреса
     initAddressButton();
 
-    // 5. Инициализация контролов корзины (открытие/закрытие панели, кнопка очистки)
-    // Передаем функции renderCart и clearCart как колбэки
-    initCartControls(renderCart, clearCart); 
+    // 5. Инициализация контролов корзины
+    initCartControls(renderCart, clearCart);
 
-    // 6. Рендер услуг на страницах вкладок
-    // addToCart из cart.js будет передана в renderServices, чтобы кнопки "Добавить" работали
-    renderServices('maintenance', serviceData.maintenance, addToCart); 
+    // 6. Рендер услуг
+    renderServices('maintenance', serviceData.maintenance, addToCart);
     renderServices('electrical', serviceData.electrical, addToCart);
 
-    // 7. Инициализация кнопки "Оформить заказ" в панели корзины
+    // 7. Инициализация кнопки "Оформить заказ" и ПОЛЯ ТЕЛЕФОНА
     const submitCartButton = document.getElementById('submitCart');
-    const phoneInputElement = document.getElementById('phoneInput'); // Нам нужно это поле
+    const phoneInputElement = document.getElementById('phoneInput');
+    let phoneMaskInstance = null; // Для доступа к экземпляру маски, если понадобится
+
+    if (phoneInputElement && typeof IMask !== 'undefined') {
+        phoneMaskInstance = IMask(phoneInputElement, {
+            mask: '+{7} (000) 000-00-00',
+            lazy: false,  // Показывает маску сразу
+            placeholderChar: '_' // Символ для незаполненных мест
+        });
+    }
 
     if (submitCartButton && phoneInputElement) {
-        submitCartButton.addEventListener('click', async () => {
-            const phone = phoneInputElement.value;
-            const comment = ""; // В этом дизайне нет поля для комментария в корзине, можно добавить если нужно.
-                              // Либо удалить комментарий из handleOrder и данных для отправки.
-                              // Пока оставим пустым.
+        submitCartButton.addEventListener('click', async () => { // Обработчик теперь async
+            const phone = phoneInputElement.value; // Получаем отформатированное значение
+            const comment = ""; // Комментарий пока не используется
 
-            // Простая валидация телефона перед вызовом handleOrder
-            // Можно использовать isValidPhone из нашего старого скрипта или более простую проверку.
-            // Для примера, простая проверка на непустое значение:
-            if (!phone.trim()) {
+            // Валидация телефона: проверяем, что введено достаточно цифр
+            // (imaskjs хранит "чистое" значение в unmaskedValue)
+            const unmaskedPhone = phoneMaskInstance ? phoneMaskInstance.unmaskedValue : phone.replace(/\D/g, '');
+
+            // Российский номер после "7" содержит 10 цифр.
+            // Если unmaskedValue начинается с "7", то его длина должна быть 11.
+            // Если мы отбросили "7", то должно быть 10 цифр.
+            // Учтем, что unmaskedValue у imask для "+{7}..." будет содержать "7"
+            if (!unmaskedPhone || unmaskedPhone.length < 11) { // Проверяем, что всего 11 цифр (включая 7)
                 if (tg && tg.showAlert) {
-                    tg.showAlert('Пожалуйста, введите ваш номер телефона.');
+                    tg.showAlert('Пожалуйста, введите ваш номер телефона полностью.');
                 } else {
-                    alert('Пожалуйста, введите ваш номер телефона.');
+                    alert('Пожалуйста, введите ваш номер телефона полностью.');
                 }
                 return;
             }
@@ -53,43 +63,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             submitCartButton.disabled = true;
             submitCartButton.innerHTML = '<span class="loading"></span> Обработка...';
 
-            // Вызываем наш handleOrder, который использует tg.sendData()
-            // Передаем текущую корзину (cart из cart.js) и телефон
-            const success = handleOrder(cart, phone, comment); // handleOrder теперь должна вернуть true/false или Promise
-                                                             // Наша текущая handleOrder в telegram.js возвращает true для совместимости
-                                                             // но на самом деле результат tg.sendData асинхронный
+            // Вызываем наш handleOrder, который теперь async
+            const success = await handleOrder(cart, phone, comment); // Дожидаемся результата
 
-            // Независимо от результата handleOrder (т.к. tg.sendData асинхронный)
-            // мы можем показать сообщение об успехе из deepseekapp
-            // и очистить корзину локально.
-            // Бэкенд должен обработать или не обработать данные.
+            // Логика после получения ответа от handleOrder
+            submitCartButton.disabled = false;
+            submitCartButton.innerHTML = submitBtnOriginalText;
 
-            // Имитируем небольшую задержку для "обработки"
-            setTimeout(() => {
-                submitCartButton.disabled = false;
-                submitCartButton.innerHTML = submitBtnOriginalText;
-
-                // Вне зависимости от того, как отработал sendData (он асинхронный и не возвращает прямой результат успеха),
-                // показываем пользователю сообщение об успехе и очищаем корзину.
-                // Фактическая доставка заказа зависит от бэкенда.
-                showSuccessMessage(); 
-
-            }, 1000); // Имитация задержки
+            if (success) {
+                // Сообщение об успехе, очистка корзины и т.д.
+                showSuccessMessage(); // Эта функция уже очищает корзину и закрывает панель
+                if (phoneMaskInstance) {
+                    phoneMaskInstance.value = ''; // Очищаем поле телефона после успешного заказа
+                } else {
+                    phoneInputElement.value = '';
+                }
+            } else {
+                // Ошибка уже должна была быть показана внутри handleOrder
+                // (через tg.showAlert или alert)
+                console.log("Произошла ошибка при оформлении заказа (детали должны были быть показаны).");
+            }
         });
     }
 
-    // 8. Обновление иконок Feather Icons (если они есть на странице)
+    // 8. Обновление иконок Feather Icons
     if (typeof feather !== 'undefined') {
         feather.replace();
     }
 
-    // 9. Подписка на изменение темы Telegram (если доступно)
+    // 9. Подписка на изменение темы Telegram
     if (tg && typeof tg.onEvent === 'function') {
         tg.onEvent('themeChanged', setTelegramTheme);
     }
 
     console.log("Приложение инициализировано с новым дизайном!");
-    if (tg && tg.showAlert) {
-        // tg.showAlert("Приложение загружено с новым дизайном! Некоторые функции могут быть в разработке.");
-    }
 });
