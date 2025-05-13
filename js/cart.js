@@ -1,20 +1,16 @@
-// Файл: js/cart.js (ПОЛНАЯ ЗАМЕНА с localStorage)
+// Файл: js/cart.js (ИСПРАВЛЕННАЯ ВЕРСИЯ с export let cart)
 
 import { tg } from './telegram.js';
 import { applyCardHighlight, removeCardHighlight } from './services.js';
 
 const CART_STORAGE_KEY = 'miniAppElmexCart';
 
-// Загружаем корзину при инициализации модуля
-let cart = loadCartFromLocalStorageInternal();
-
-// Внутренняя функция загрузки
+// Внутренняя функция загрузки (остается без изменений)
 function loadCartFromLocalStorageInternal() {
     try {
         const savedCart = localStorage.getItem(CART_STORAGE_KEY);
         if (savedCart) {
             const parsedCart = JSON.parse(savedCart);
-            // Убедимся, что это массив и содержит не более одного элемента
             if (Array.isArray(parsedCart) && parsedCart.length <= 1) {
                 return parsedCart;
             }
@@ -22,10 +18,13 @@ function loadCartFromLocalStorageInternal() {
     } catch (e) {
         console.error("Error loading cart from localStorage:", e);
     }
-    return []; // Возвращаем пустую корзину по умолчанию или при ошибке
+    return [];
 }
 
-// Функция сохранения
+// === ИСПРАВЛЕНИЕ ЗДЕСЬ: Добавлено 'export' ===
+export let cart = loadCartFromLocalStorageInternal();
+// ============================================
+
 function saveCartToLocalStorage() {
     try {
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
@@ -34,13 +33,11 @@ function saveCartToLocalStorage() {
     }
 }
 
-// Экспортируемая функция для вызова из app.js, если нужно (например, для инициализации значка)
 export function initializeCart() {
-    cart = loadCartFromLocalStorageInternal(); // Убедимся, что cart актуален
+    // При инициализации мы переназначаем экспортируемую переменную cart
+    cart = loadCartFromLocalStorageInternal(); 
     updateCartBadge();
-    // renderCart() не вызываем здесь, он вызывается при открытии панели
 }
-
 
 function findServiceCardElement(serviceId) {
     return document.querySelector(`.service-card[data-service-id="${serviceId}"]`);
@@ -108,8 +105,8 @@ export function addToCart(service) {
         return; 
     }
 
-    cart.push({ ...service, quantity: 1 });
-    saveCartToLocalStorage(); // Сохраняем
+    cart.push({ ...service, quantity: 1 }); // quantity всегда 1
+    saveCartToLocalStorage(); 
     
     const cardElement = findServiceCardElement(service.id);
     if (cardElement) {
@@ -134,8 +131,8 @@ export function removeFromCart(serviceId) {
     const itemIndex = cart.findIndex(item => item.id === serviceId);
     if (itemIndex === -1) return;
 
-    cart = []; // Очищаем, так как там был один элемент
-    saveCartToLocalStorage(); // Сохраняем
+    cart = []; 
+    saveCartToLocalStorage();
 
     const cardElement = findServiceCardElement(serviceId);
     if (cardElement) {
@@ -170,7 +167,7 @@ export function clearCart() {
     }
 
     cart = [];
-    saveCartToLocalStorage(); // Сохраняем
+    saveCartToLocalStorage();
     updateCartBadge();
     renderCart();
     
@@ -194,7 +191,6 @@ export function showSuccessMessage(orderedItemTitle) {
     if (successMessageEl) successMessageEl.classList.add('visible');
     if (overlayEl) overlayEl.classList.add('visible');
     
-    // Очищаем корзину (и localStorage внутри clearCart)
     clearCart(); 
     const cartPanel = document.getElementById('cartPanel');
     if (cartPanel) cartPanel.classList.remove('visible');
