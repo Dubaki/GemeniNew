@@ -1,18 +1,19 @@
-// Файл: js/cart.js (ИСПРАВЛЕННАЯ ВЕРСИЯ с export let cart)
+// Файл: js/cart.js (ПОЛНАЯ ЗАМЕНА)
 
 import { tg } from './telegram.js';
 import { applyCardHighlight, removeCardHighlight } from './services.js';
 
 const CART_STORAGE_KEY = 'miniAppElmexCart';
 
-// Внутренняя функция загрузки (остается без изменений)
 function loadCartFromLocalStorageInternal() {
     try {
         const savedCart = localStorage.getItem(CART_STORAGE_KEY);
         if (savedCart) {
             const parsedCart = JSON.parse(savedCart);
-            if (Array.isArray(parsedCart) && parsedCart.length <= 1) {
-                return parsedCart;
+            // Убедимся, что это массив
+            if (Array.isArray(parsedCart)) {
+                // Убедимся, что каждый элемент имеет id (базовая проверка)
+                return parsedCart.filter(item => item && typeof item.id !== 'undefined');
             }
         }
     } catch (e) {
@@ -21,9 +22,7 @@ function loadCartFromLocalStorageInternal() {
     return [];
 }
 
-// === ИСПРАВЛЕНИЕ ЗДЕСЬ: Добавлено 'export' ===
 export let cart = loadCartFromLocalStorageInternal();
-// ============================================
 
 function saveCartToLocalStorage() {
     try {
@@ -34,8 +33,7 @@ function saveCartToLocalStorage() {
 }
 
 export function initializeCart() {
-    // При инициализации мы переназначаем экспортируемую переменную cart
-    cart = loadCartFromLocalStorageInternal(); 
+    cart = loadCartFromLocalStorageInternal();
     updateCartBadge();
 }
 
@@ -46,9 +44,8 @@ function findServiceCardElement(serviceId) {
 export function updateCartBadge() {
     const badge = document.getElementById('cartBadge');
     if (!badge) return;
-    const totalQuantity = cart.length > 0 ? 1 : 0;
-    badge.textContent = totalQuantity;
-    badge.style.display = totalQuantity > 0 ? 'flex' : 'none';
+    badge.textContent = cart.length; // Количество уникальных услуг
+    badge.style.display = cart.length > 0 ? 'flex' : 'none';
 }
 
 export function renderCart() {
@@ -67,46 +64,50 @@ export function renderCart() {
     }
     
     if (submitCartButton) submitCartButton.disabled = false;
-    const item = cart[0]; 
+    
+    let currentTotal = 0;
+    cart.forEach(item => {
+        const cartItemDiv = document.createElement('div');
+        cartItemDiv.className = 'cart-item';
+        // Количество всегда 1, так что не отображаем его явно в корзине, только название и цену
+        cartItemDiv.innerHTML = `
+            <div class="cart-item-info">
+                <div class="cart-item-title">${item.title}</div>
+                <div class="cart-item-price">${item.price} ₽</div>
+            </div>
+            <button class="cart-item-remove" data-id="${item.id}">
+                <i data-feather="trash-2"></i>
+            </button>`;
+        cartItemDiv.querySelector('.cart-item-remove').addEventListener('click', () => removeFromCart(item.id));
+        cartItemsEl.appendChild(cartItemDiv);
+        currentTotal += item.price; // Суммируем цены всех уникальных услуг
+    });
 
-    const cartItemDiv = document.createElement('div');
-    cartItemDiv.className = 'cart-item';
-    cartItemDiv.innerHTML = `
-        <div class="cart-item-info">
-            <div class="cart-item-title">${item.title}</div>
-            <div class="cart-item-price">${item.price} ₽</div>
-        </div>
-        <button class="cart-item-remove" data-id="${item.id}">
-            <i data-feather="trash-2"></i>
-        </button>`;
-    cartItemDiv.querySelector('.cart-item-remove').addEventListener('click', () => removeFromCart(item.id));
-    cartItemsEl.appendChild(cartItemDiv);
-
-    cartTotalEl.textContent = `${item.price} ₽`;
+    cartTotalEl.textContent = `${currentTotal} ₽`;
 
     if (typeof feather !== 'undefined') {
         feather.replace();
     }
 }
 
-export function addToCart(service) {
+export function addToCart(service) { // service - полный объект, включая highlightColor
     if (!service || typeof service.id === 'undefined' || !service.highlightColor) {
         console.error("Попытка добавить невалидный сервис или сервис без highlightColor:", service);
         if (tg && tg.showAlert) tg.showAlert("Ошибка: Некорректные данные об услуге.");
         return;
     }
 
-    if (cart.length > 0) {
-        if (cart[0].id === service.id) {
-            if (tg && tg.showAlert) tg.showAlert("Эта услуга уже в корзине.");
-        } else {
-            if (tg && tg.showAlert) tg.showAlert("В корзину можно добавить только одну услугу. Очистите корзину, чтобы выбрать другую.");
-        }
-        return; 
+    // Проверяем, есть ли уже такая услуга в корзине
+    const existingItemIndex = cart.findIndex(item => item.id === service.id);
+
+    if (existingItemIndex !== -1) {
+        if (tg && tg.showAlert) tg.showAlert("Эта услуга уже добавлена в корзину.");
+        return; // Услуга уже есть, ничего не делаем
     }
 
-    cart.push({ ...service, quantity: 1 }); // quantity всегда 1
-    saveCartToLocalStorage(); 
+    // Добавляем новую услугу (количество по умолчанию 1)
+    cart.push({ ...service, quantity: 1 }); // quantity здесь для совместимости с orderDetails, всегда 1
+    saveCartToLocalStorage();
     
     const cardElement = findServiceCardElement(service.id);
     if (cardElement) {
@@ -131,7 +132,7 @@ export function removeFromCart(serviceId) {
     const itemIndex = cart.findIndex(item => item.id === serviceId);
     if (itemIndex === -1) return;
 
-    cart = []; 
+    cart.splice(itemIndex, 1); // Удаляем услугу из массива
     saveCartToLocalStorage();
 
     const cardElement = findServiceCardElement(serviceId);
@@ -151,8 +152,7 @@ export function removeFromCart(serviceId) {
 }
 
 export function clearCart() {
-    if (cart.length > 0) {
-        const itemInCart = cart[0];
+    cart.forEach(itemInCart => {
         const cardElement = findServiceCardElement(itemInCart.id);
         if (cardElement) {
             cardElement.classList.remove('selected-in-cart');
@@ -164,7 +164,7 @@ export function clearCart() {
                 if (typeof feather !== 'undefined') feather.replace();
             }
         }
-    }
+    });
 
     cart = [];
     saveCartToLocalStorage();
@@ -177,16 +177,11 @@ export function clearCart() {
     if (overlay) overlay.classList.remove('visible');
 }
 
-export function showSuccessMessage(orderedItemTitle) {
+// showSuccessMessage теперь не принимает аргументов, текст задан в HTML
+export function showSuccessMessage() {
     const successMessageEl = document.getElementById('successMessage');
-    const successDetailsEl = document.getElementById('successDetailsText');
     const overlayEl = document.getElementById('overlay');
-
-    if (successDetailsEl && orderedItemTitle) {
-        successDetailsEl.textContent = `Вы записаны на "${orderedItemTitle}". Менеджер перезвонит вам с номера, окончание 0911.`;
-    } else if (successDetailsEl) {
-        successDetailsEl.textContent = `Ваша заявка принята. Менеджер перезвонит вам с номера, окончание 0911.`;
-    }
+    // Текст сообщения теперь напрямую в HTML
 
     if (successMessageEl) successMessageEl.classList.add('visible');
     if (overlayEl) overlayEl.classList.add('visible');
