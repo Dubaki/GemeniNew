@@ -23,10 +23,8 @@
             <button class="tab-button active" data-tab="maintenance">Техобслуживание</button>
             <button class="tab-button" data-tab="electrical">Электрика</button>
         </div>
-        <div id="maintenance" class="tab-content active">
-            </div>
-        <div id="electrical" class="tab-content">
-            </div>
+        <div id="maintenance" class="tab-content active"></div>
+        <div id="electrical" class="tab-content"></div>
         <div class="info-section">
             <button class="address-btn" id="addressBtn">
                 <i data-feather="map-pin"></i>
@@ -41,8 +39,7 @@
             <div class="cart-title">Корзина</div>
             <button class="close-cart" id="closeCart">&times;</button>
         </div>
-        <div class="cart-items" id="cartItems">
-            </div>
+        <div class="cart-items" id="cartItems"></div>
         <div class="cart-total">
             <span>Итого:</span>
             <span id="cartTotal">0 ₽</span>
@@ -50,7 +47,7 @@
         <div class="cart-phone">
             <label for="phoneInput" style="display: block; margin-bottom: 8px;">Ваш номер телефона:</label>
             <input type="tel" id="phoneInput" name="phone" placeholder="+7 (___) ___-__-__" required>
-            </div>
+        </div>
         <div class="cart-buttons">
             <button class="cart-button clear-cart" id="clearCart">Очистить</button>
             <button class="cart-button submit-cart" id="submitCart">Оформить заказ</button>
@@ -59,12 +56,14 @@
     <div class="success-message" id="successMessage">
         <div class="success-icon">✓</div>
         <h3>Заявка успешно отправлена!</h3>
-        <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения заказа.</p>
+        {/* === ДОБАВЛЕН ID ЗДЕСЬ === */}
+        <p id="successDetailsText">Наш менеджер свяжется с вами в ближайшее время для подтверждения заказа.</p>
+        {/* ======================= */}
         <button class="success-button" id="successButton">Отлично</button>
     </div>
 
     <script src="js/services.js" type="module"></script>
-    <script src="js/cart.js" type="module"></script>
+    <script src="js/cart.js" type="module"></script>    
     <script src="js/telegram.js" type="module"></script>
     <script src="js/utils.js" type="module"></script>
     <script src="js/app.js" type="module"></script>
