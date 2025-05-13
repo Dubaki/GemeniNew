@@ -6,7 +6,7 @@
     --tg-theme-button-text-color: #ffffff;
     --tg-theme-secondary-bg-color: #cceeff;
     --accent-color: #0099cc;
-    --cart-icon-highlight-color: #FFC107; /* Цвет для подсветки иконки корзины */
+    --cart-icon-highlight-color: #FFC107; 
 }
 
 body {
@@ -24,356 +24,20 @@ body {
     padding: 16px;
 }
 
-header {
-    text-align: center;
-    padding: 20px 0;
-    position: relative;
-}
+/* ... (все стили до .cart-phone input остаются такими же, как в предыдущем полном CSS) ... */
+header, .logo, .cart-icon, .cart-icon svg, .cart-icon:hover, .cart-badge,
+.tab-buttons, .tab-button, .tab-button:hover, .tab-button.active,
+.tab-content, .tab-content.active, @keyframes fadeIn,
+.service-card, .service-card:hover:not(.selected-in-cart), .service-card.selected-in-cart,
+.service-icon, .service-info, .service-title, .service-price, .service-description,
+.add-button, .add-button:hover, .add-button i,
+.info-section, .address-btn, .address-btn:hover, .address-btn i, .address-btn strong,
+.cart-panel, .cart-panel.visible, .cart-header, .cart-title, .close-cart,
+.cart-items, .cart-item, .cart-item:last-child, .cart-item-info, .cart-item-title, .cart-item-price,
+.cart-item-remove, .cart-item-remove i, .cart-total, .cart-buttons, .cart-button,
+.clear-cart, .clear-cart:hover, .submit-cart, .submit-cart:hover, .submit-cart:disabled
+{ /* Сократил, чтобы не повторять все стили - они остаются как в предыдущем CSS */ }
 
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--accent-color);
-    margin-bottom: 8px;
-}
-
-.cart-icon {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 8px;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    z-index: 10;
-}
-
-.cart-icon svg {
-    display: block;
-}
-
-.cart-icon:hover {
-    transform: scale(1.15) rotate(5deg);
-    box-shadow: 0 0 10px 2px var(--cart-icon-highlight-color);
-}
-
-.cart-badge {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    background-color: var(--accent-color);
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 11;
-}
-
-.tab-buttons {
-    display: flex;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: var(--tg-theme-secondary-bg-color);
-}
-
-.tab-button {
-    flex: 1;
-    padding: 12px;
-    text-align: center;
-    background: none;
-    border: none;
-    color: var(--tg-theme-text-color);
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.tab-button:hover {
-    background-color: rgba(0, 153, 204, 0.2);
-}
-
-.tab-button.active {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: bold;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-    animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.service-card {
-    background-color: var(--tg-theme-secondary-bg-color);
-    border-radius: 12px;
-    margin-bottom: 16px;
-    padding: 16px; /* Убедимся, что внутренний отступ не меняется рамкой */
-    display: flex;
-    align-items: center;
-    position: relative;
-    overflow: hidden; /* Можно оставить, если нет выходящих элементов тени */
-    /* Плавные переходы для рамки, тени и трансформации */
-    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-    /* Устанавливаем прозрачную рамку, чтобы было место для цветной без скачка размера */
-    border: 2px solid transparent;
-}
-
-/* Эффект увеличения при наведении на карточку (можно оставить или убрать, если мешает подсветке) */
-.service-card:hover:not(.selected-in-cart) { /* Увеличиваем только если не выбрана постоянно */
-    transform: scale(1.02);
-}
-
-.service-card.selected-in-cart {
-    /* Этот класс используется как маркер в JS.
-       Стили подсветки (borderColor, boxShadow) применяются напрямую через JS.
-       Можно добавить сюда постоянный transform, если нужно, чтобы выбранные были чуть больше.
-       Например: transform: scale(1.01);
-    */
-}
-
-
-.service-icon {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-    color: var(--accent-color);
-    background-color: rgba(0, 153, 204, 0.1);
-    border-radius: 12px;
-}
-
-.service-info {
-    flex: 1;
-}
-
-.service-title {
-    font-weight: bold;
-    margin-bottom: 6px;
-    font-size: 16px;
-}
-
-.service-price {
-    color: var(--accent-color);
-    font-weight: bold;
-    margin-bottom: 6px;
-}
-
-.service-description {
-    font-size: 14px;
-    opacity: 0.8;
-    margin-bottom: 10px;
-}
-
-.add-button {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.add-button:hover {
-    transform: scale(1.05);
-}
-
-.add-button i {
-    margin-right: 4px;
-}
-
-/* ... Остальные стили остаются без изменений (info-section, cart-panel, etc.) ... */
-/* Убедитесь, что скопировали весь CSS до конца, если заменяете файл целиком */
-.info-section {
-    background-color: var(--tg-theme-secondary-bg-color);
-    border-radius: 12px;
-    margin-top: 30px;
-}
-
-.address-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background-color: rgba(0, 153, 204, 0.1);
-    border: 1px solid var(--accent-color);
-    border-radius: 12px;
-    padding: 20px;
-    width: 100%;
-    box-sizing: border-box;
-    color: var(--tg-theme-text-color);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 18px;
-    min-height: 100px;
-}
-
-.address-btn:hover {
-    background-color: rgba(0, 153, 204, 0.2);
-}
-
-.address-btn i {
-    margin-bottom: 10px;
-    color: var(--accent-color);
-    font-size: 28px;
-}
-
-.address-btn strong {
-    font-size: 20px;
-    margin-bottom: 5px;
-}
-
-.cart-panel {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: var(--tg-theme-secondary-bg-color);
-    padding: 16px;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
-    transform: translateY(100%);
-    transition: transform 0.3s;
-    z-index: 1000;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-sizing: border-box;
-}
-
-.cart-panel.visible {
-    transform: translateY(0);
-}
-
-.cart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.cart-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.close-cart {
-    background: none;
-    border: none;
-    color: var(--tg-theme-text-color);
-    cursor: pointer;
-    font-size: 24px;
-}
-
-.cart-items {
-    margin-bottom: 20px;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(0, 153, 204, 0.2);
-}
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.cart-item-info {
-    flex: 1;
-    margin-right: 10px;
-}
-
-.cart-item-title {
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-
-.cart-item-price {
-    color: var(--accent-color);
-}
-
-.cart-item-remove {
-    background: none;
-    border: none;
-    color: #ff4d4d;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.cart-item-remove i {
-    display: block;
-}
-
-.cart-total {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    margin: 16px 0;
-    padding-top: 10px;
-    border-top: 1px solid rgba(0, 153, 204, 0.2);
-}
-
-.cart-buttons {
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
-}
-
-.cart-button {
-    flex: 1;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.clear-cart {
-    background-color: rgba(255, 0, 0, 0.1);
-    color: #ff4d4d;
-}
-.clear-cart:hover {
-    background-color: rgba(255, 0, 0, 0.2);
-}
-
-.submit-cart {
-    background-color: var(--accent-color);
-    color: white;
-}
-.submit-cart:hover {
-    background-color: #007baA;
-}
-.submit-cart:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
 
 .cart-phone {
     margin-bottom: 16px;
@@ -381,84 +45,96 @@ header {
 
 .cart-phone input {
     width: 100%;
-    padding: 10px;
+    padding: 12px 10px; /* Слегка увеличил вертикальный padding */
     border-radius: 6px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--tg-theme-text-color, #ccc); /* Используем цвет текста темы для рамки */
     box-sizing: border-box;
+    font-size: 16px; /* Убедимся, что размер шрифта адекватный */
+    background-color: var(--tg-theme-bg-color); /* Фон поля ввода */
+    color: var(--tg-theme-text-color); /* Цвет текста в поле */
+    height: 44px; /* Явно зададим высоту, чтобы было достаточно места */
+    line-height: normal; /* Для лучшего вертикального выравнивания текста */
 }
 
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 900;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-
-.overlay.visible {
+/* Стили для плейсхолдера, если нужно */
+.cart-phone input::placeholder {
+    color: var(--tg-theme-hint-color, #999);
     opacity: 1;
-    pointer-events: auto;
 }
 
-.success-message {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    background-color: var(--tg-theme-secondary-bg-color);
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    z-index: 1100;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s;
-    max-width: 80%;
-    box-sizing: border-box;
-}
 
-.success-message.visible {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-}
+/* ... (остальные стили: overlay, success-message, loading, @keyframes spin - остаются как в предыдущем полном CSS) ... */
+.overlay, .overlay.visible, .success-message, .success-message.visible,
+.success-icon, .success-button, .success-button:hover,
+.loading, @keyframes spin
+{ /* Сократил - они остаются как в предыдущем CSS */ }
 
-.success-icon {
-    font-size: 48px;
-    color: #22c55e;
-    margin-bottom: 16px;
-}
+/* === КОПИПАСТ ВСЕХ СТИЛЕЙ ИЗ ПРЕДЫДУЩЕГО ПОЛНОГО CSS ОТВЕТА === */
+/* Убедитесь, что скопировали все стили, чтобы ничего не потерялось.
+   Я привожу только изменения для .cart-phone input, остальное должно быть как раньше.
+   Для полной ясности, вот полный блок стилей снова, включая не измененные.
+*/
 
-.success-button {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-weight: bold;
-    margin-top: 16px;
-    cursor: pointer;
-}
-.success-button:hover {
-    background-color: #007baA;
-}
-
-.loading {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-    margin-right: 8px;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+header { text-align: center; padding: 20px 0; position: relative; }
+.logo { font-size: 24px; font-weight: bold; color: var(--accent-color); margin-bottom: 8px; }
+.cart-icon { position: absolute; top: 15px; right: 15px; cursor: pointer; padding: 5px; border-radius: 8px; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; z-index: 10; }
+.cart-icon svg { display: block; }
+.cart-icon:hover { transform: scale(1.15) rotate(5deg); box-shadow: 0 0 10px 2px var(--cart-icon-highlight-color); }
+.cart-badge { position: absolute; top: 0px; right: 0px; background-color: var(--accent-color); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center; z-index: 11; }
+.tab-buttons { display: flex; margin-bottom: 20px; border-radius: 8px; overflow: hidden; background-color: var(--tg-theme-secondary-bg-color); }
+.tab-button { flex: 1; padding: 12px; text-align: center; background: none; border: none; color: var(--tg-theme-text-color); font-size: 16px; cursor: pointer; transition: all 0.3s ease; }
+.tab-button:hover { background-color: rgba(0, 153, 204, 0.2); }
+.tab-button.active { background-color: var(--accent-color); color: white; font-weight: bold; }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.service-card { background-color: var(--tg-theme-secondary-bg-color); border-radius: 12px; margin-bottom: 16px; padding: 16px; display: flex; align-items: center; position: relative; overflow: hidden; transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out; border: 2px solid transparent; }
+.service-card:hover:not(.selected-in-cart) { transform: scale(1.02); }
+.service-card.selected-in-cart { /* Стили для этого класса могут быть, но цвета задаются через JS */ }
+.service-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; margin-right: 16px; color: var(--accent-color); background-color: rgba(0, 153, 204, 0.1); border-radius: 12px; }
+.service-info { flex: 1; }
+.service-title { font-weight: bold; margin-bottom: 6px; font-size: 16px; }
+.service-price { color: var(--accent-color); font-weight: bold; margin-bottom: 6px; }
+.service-description { font-size: 14px; opacity: 0.8; margin-bottom: 10px; }
+.add-button { background-color: var(--accent-color); color: white; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 14px; display: flex; align-items: center; transition: transform 0.2s ease, background-color 0.2s ease; }
+.add-button:hover { transform: scale(1.05); }
+.add-button i { margin-right: 4px; }
+.info-section { background-color: var(--tg-theme-secondary-bg-color); border-radius: 12px; margin-top: 30px; }
+.address-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background-color: rgba(0, 153, 204, 0.1); border: 1px solid var(--accent-color); border-radius: 12px; padding: 20px; width: 100%; box-sizing: border-box; color: var(--tg-theme-text-color); cursor: pointer; transition: all 0.3s ease; font-size: 18px; min-height: 100px; }
+.address-btn:hover { background-color: rgba(0, 153, 204, 0.2); }
+.address-btn i { margin-bottom: 10px; color: var(--accent-color); font-size: 28px; }
+.address-btn strong { font-size: 20px; margin-bottom: 5px; }
+.cart-panel { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--tg-theme-secondary-bg-color); padding: 16px; border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); transform: translateY(100%); transition: transform 0.3s; z-index: 1000; max-height: 80vh; overflow-y: auto; box-sizing: border-box; }
+.cart-panel.visible { transform: translateY(0); }
+.cart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.cart-title { font-size: 18px; font-weight: bold; }
+.close-cart { background: none; border: none; color: var(--tg-theme-text-color); cursor: pointer; font-size: 24px; }
+.cart-items { margin-bottom: 20px; }
+.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,153,204,0.2); }
+.cart-item:last-child { border-bottom: none; }
+.cart-item-info { flex: 1; margin-right: 10px; }
+.cart-item-title { font-weight: bold; margin-bottom: 4px; }
+.cart-item-price { color: var(--accent-color); }
+.cart-item-remove { background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 5px; }
+.cart-item-remove i { display: block; }
+.cart-total { display: flex; justify-content: space-between; font-weight: bold; margin: 16px 0; padding-top: 10px; border-top: 1px solid rgba(0,153,204,0.2); }
+.cart-buttons { display: flex; gap: 10px; flex-direction: column; }
+.cart-button { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center; }
+.clear-cart { background-color: rgba(255,0,0,0.1); color: #ff4d4d; }
+.clear-cart:hover { background-color: rgba(255,0,0,0.2); }
+.submit-cart { background-color: var(--accent-color); color: white; }
+.submit-cart:hover { background-color: #007baA; }
+.submit-cart:disabled { background-color: #cccccc; cursor: not-allowed; }
+/* Изменения здесь */
+.cart-phone input { width: 100%; padding: 12px 10px; border-radius: 6px; border: 1px solid var(--tg-theme-text-color, #ccc); box-sizing: border-box; font-size: 16px; background-color: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); height: 44px; line-height: normal; }
+.cart-phone input::placeholder { color: var(--tg-theme-hint-color, #999); opacity: 1;}
+/* Конец изменений */
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 900; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.overlay.visible { opacity: 1; pointer-events: auto; }
+.success-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0.9); background-color: var(--tg-theme-secondary-bg-color); padding: 20px; border-radius: 12px; text-align: center; z-index: 1100; opacity: 0; pointer-events: none; transition: all 0.3s; max-width: 80%; box-sizing: border-box;}
+.success-message.visible { opacity: 1; pointer-events: auto; transform: translate(-50%,-50%) scale(1); }
+.success-icon { font-size: 48px; color: #22c55e; margin-bottom: 16px; }
+.success-button { background-color: var(--accent-color); color: white; border: none; border-radius: 8px; padding: 12px 24px; font-weight: bold; margin-top: 16px; cursor: pointer; }
+.success-button:hover { background-color: #007baA; }
+.loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
