@@ -1,25 +1,21 @@
-// File: api/create-order.js (НОВЫЙ ФАЙЛ)
+// File: api/create-order.js (ОБНОВЛЕННЫЙ КОД)
 
 export default async function handler(req, res) {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] /api/create-order: Request received! Method: ${req.method}, URL: ${req.url}`);
 
     // --- НАЧАЛО БЛОКА CORS ---
-    // Устанавливаем заголовки CORS. В продакшене замените '*' на URL вашего Mini App.
-    // Например: 'https://your-project-name.vercel.app' или тот URL, где хостится фронтенд
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS'); // Разрешаем POST и OPTIONS
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // Разрешаем заголовок Content-Type
+    res.setHeader('Access-Control-Allow-Origin', '*'); // В продакшене замените '*' на URL вашего Mini App
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Обработка preflight-запроса OPTIONS (браузер отправляет его перед POST с другого домена)
     if (req.method === 'OPTIONS') {
         console.log(`[${timestamp}] /api/create-order: Responding to OPTIONS preflight request`);
-        res.status(204).end(); // Отвечаем 204 No Content
+        res.status(204).end();
         return;
     }
     // --- КОНЕЦ БЛОКА CORS ---
 
-    // Обрабатываем только POST запросы
     if (req.method !== 'POST') {
         console.log(`[${timestamp}] /api/create-order: Method Not Allowed (${req.method})`);
         res.setHeader('Allow', ['POST', 'OPTIONS']);
@@ -27,14 +23,10 @@ export default async function handler(req, res) {
         return;
     }
 
-    // Обработка основного POST запроса
     try {
         console.log(`[${timestamp}] /api/create-order: Processing POST request...`);
-
-        // Получаем данные из тела запроса (Vercel автоматически парсит JSON)
         const orderData = req.body;
 
-        // Проверка, что данные получены
         if (!orderData || typeof orderData !== 'object' || Object.keys(orderData).length === 0) {
             console.error(`[${timestamp}] /api/create-order: Invalid or empty request body received.`);
             return res.status(400).json({ status: 'error', message: 'Invalid or empty order data received.' });
@@ -42,41 +34,73 @@ export default async function handler(req, res) {
 
         console.log(`[${timestamp}] /api/create-order: Received order data:`, JSON.stringify(orderData, null, 2));
 
-        // --- ДОБАВЬТЕ ЗДЕСЬ ВАШУ ЛОГИКУ ОБРАБОТКИ ЗАКАЗА ---
-        // 1. Валидация данных: Проверьте phone, items, totalPrice и т.д.
-        // 2. (Опционально) Проверка подлинности пользователя через orderData.initData (требует сложной логики проверки hash)
-        // 3. Сохранение заказа в базу данных или отправка уведомления
-        // 4. Например, можно отправить сообщение админу через API Telegram Bot
-        // const adminChatId = 'ВАШ_АДМИН_CHAT_ID';
-        // const botToken = process.env.TELEGRAM_BOT_TOKEN; // Токен лучше хранить в переменных окружения Vercel
-        // const messageText = `Новый заказ:\nТелефон: ${orderData.phone}\nСумма: ${orderData.totalPrice} ₽\nСостав: ${orderData.items.map(i => i.title).join(', ')}`;
-        // try {
-        //    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        //        method: 'POST',
-        //        headers: {'Content-Type': 'application/json'},
-        //        body: JSON.stringify({ chat_id: adminChatId, text: messageText })
-        //    });
-        //    console.log(`[${timestamp}] /api/create-order: Admin notification sent.`);
-        // } catch (notifyError) {
-        //    console.error(`[${timestamp}] /api/create-order: Failed to send admin notification:`, notifyError);
-        // }
-        // --- КОНЕЦ ВАШЕЙ ЛОГИКИ ОБРАБОТКИ ЗАКАЗА ---
+        // ----- ВАША ЛОГИКА ОБРАБОТКИ ЗАКАЗА (сохранение в БД и т.д.) -----
+        // ... (здесь вы можете сохранять заказ, если нужно) ...
+        // ------------------------------------------------------------------
 
-        console.log(`[${timestamp}] /api/create-order: Order processed successfully (placeholder).`);
+        // ----- ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM -----
+        const botToken = process.env.TELEGRAM_BOT_TOKEN; // Получаем токен из переменных окружения Vercel
+        const targetChatId = 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ'; // <--- ЗАМЕНИТЕ ЭТО НА НУЖНЫЙ ID
 
-        // Отправляем успешный ответ обратно в Мини-приложение
+        if (!botToken) {
+            console.error(`[${timestamp}] /api/create-order: TELEGRAM_BOT_TOKEN is not set in environment variables.`);
+            // Не прерываем заказ, но логируем ошибку
+        } else if (!targetChatId || targetChatId === 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ') {
+            console.error(`[${timestamp}] /api/create-order: targetChatId is not set correctly.`);
+        } else {
+            let messageText = `🔔 <b>Новый заказ!</b>\n\n`;
+            messageText += `<b>Телефон:</b> ${orderData.phone || 'не указан'}\n`;
+            if (orderData.userInfo) {
+                messageText += `<b>Клиент:</b> ${orderData.userInfo.first_name || ''} ${orderData.userInfo.last_name || ''} (@${orderData.userInfo.username || 'нет username'})\n`;
+            }
+            messageText += `<b>Сумма заказа:</b> ${orderData.totalPrice || 0} ₽\n\n`;
+            messageText += `<b>Состав заказа:</b>\n`;
+            if (orderData.items && orderData.items.length > 0) {
+                orderData.items.forEach(item => {
+                    messageText += `- ${item.title} (ID: ${item.id}) x ${item.quantity} = ${item.price * item.quantity} ₽\n`;
+                });
+            } else {
+                messageText += `- Корзина пуста\n`;
+            }
+            if (orderData.comment) {
+                messageText += `\n<b>Комментарий:</b> ${orderData.comment}\n`;
+            }
+
+            const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            try {
+                const notificationResponse = await fetch(telegramApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: targetChatId,
+                        text: messageText,
+                        parse_mode: 'HTML' // Используем HTML для форматирования (<b>, <i>, <a>, <pre>, <code>)
+                    })
+                });
+                const notificationResult = await notificationResponse.json();
+                if (notificationResult.ok) {
+                    console.log(`[${timestamp}] /api/create-order: Admin notification sent successfully to chat_id ${targetChatId}.`);
+                } else {
+                    console.error(`[${timestamp}] /api/create-order: Failed to send admin notification. Response:`, JSON.stringify(notificationResult));
+                }
+            } catch (notifyError) {
+                console.error(`[${timestamp}] /api/create-order: Error sending admin notification:`, notifyError);
+            }
+        }
+        // --- КОНЕЦ ОТПРАВКИ УВЕДОМЛЕНИЯ ---
+
+        console.log(`[${timestamp}] /api/create-order: Order processed (notification attempt made).`);
         res.status(200).json({
             status: 'success',
-            message: 'Заказ успешно получен и обрабатывается!', // Это сообщение можно показать в Mini App
-            receivedOrderId: `ORDER_${Date.now()}` // Пример ID заказа
+            message: 'Заказ успешно получен и обрабатывается!',
+            receivedOrderId: `ORDER_${Date.now()}`
         });
 
     } catch (error) {
-        // Обработка неожиданных ошибок
         console.error(`[${timestamp}] !!! UNEXPECTED ERROR in /api/create-order !!!`);
         console.error(`[${timestamp}] Error message: ${error.message}`);
         console.error(`[${timestamp}] Error stack: ${error.stack}`);
-        if (req?.body) { // Логируем тело запроса при ошибке (если оно есть)
+        if (req?.body) {
              try {
                  console.error(`[${timestamp}] Request body during error:`, JSON.stringify(req.body, null, 2));
              } catch {
