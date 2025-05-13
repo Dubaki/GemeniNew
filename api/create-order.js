@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
         // ----- ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM -----
         const botToken = process.env.TELEGRAM_BOT_TOKEN; // Получаем токен из переменных окружения Vercel
-        const targetChatId = 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ'; // <--- ЗАМЕНИТЕ ЭТО НА НУЖНЫЙ ID
+        const targetChatId = '5930269100'; // <--- ЗАМЕНИТЕ ЭТО НА НУЖНЫЙ ID
 
         if (!botToken) {
             console.error(`[${timestamp}] /api/create-order: TELEGRAM_BOT_TOKEN is not set in environment variables.`);
