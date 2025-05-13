@@ -37,83 +37,70 @@ export default async function handler(req, res) {
         // ------------------------------------------------------------------
 
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
-        const adminChatId = 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ_АДМИНУ'; // Замените на ID админа
+        const adminChatId = 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ_АДМИНУ'; // Замените
 
-        // --- Уведомление администратору (остается) ---
-        if (botToken && adminChatId !== 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ_АДМИНУ') {
+        // --- Уведомление администратору ---
+        if (botToken && adminChatId && adminChatId !== 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ_АДМИНУ') {
             let adminMessageText = `🔔 <b>Новый заказ от Mini App!</b>\n\n`;
             adminMessageText += `<b>Телефон:</b> ${orderData.phone || 'не указан'}\n`;
             if (orderData.userInfo) {
                 adminMessageText += `<b>Клиент:</b> ${orderData.userInfo.first_name || ''} ${orderData.userInfo.last_name || ''} (@${orderData.userInfo.username || 'нет username'}, ID: ${orderData.userInfo.id})\n`;
             }
-            adminMessageText += `<b>Сумма заказа:</b> ${orderData.totalPrice || 0} ₽\n`;
+            adminMessageText += `<b>Сумма заказа:</b> ${orderData.totalPrice || 0} ₽\n\n`;
+            adminMessageText += `<b>Заказанные услуги:</b>\n`;
             if (orderData.items && orderData.items.length > 0) {
-                adminMessageText += `<b>Услуга:</b> ${orderData.items[0].title}\n`; // Т.к. услуга одна
+                orderData.items.forEach(item => {
+                    adminMessageText += `- ${item.title}\n`;
+                });
+            } else {
+                adminMessageText += `- Корзина пуста\n`;
             }
-            if (orderData.comment) {
-                adminMessageText += `\n<b>Комментарий:</b> ${orderData.comment}\n`;
-            }
-
+            // ... (остальная часть уведомления админу без изменений) ...
             try {
                 const adminNotifyResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: adminChatId, text: adminMessageText, parse_mode: 'HTML' })
                 });
                 const adminNotifyResult = await adminNotifyResponse.json();
-                if (adminNotifyResult.ok) {
-                    console.log(`[${timestamp}] /api/create-order: Admin notification sent successfully.`);
-                } else {
-                    console.error(`[${timestamp}] /api/create-order: Failed to send admin notification. Response:`, JSON.stringify(adminNotifyResult));
-                }
-            } catch (notifyError) {
-                console.error(`[${timestamp}] /api/create-order: Error sending admin notification:`, notifyError);
-            }
-        } else {
-            if (!botToken) console.error(`[${timestamp}] /api/create-order: TELEGRAM_BOT_TOKEN (for admin) is not set.`);
-            if (adminChatId === 'ВАШ_TELEGRAM_ID_ДЛЯ_УВЕДОМЛЕНИЙ_АДМИНУ') console.warn(`[${timestamp}] /api/create-order: Admin chat ID not set.`);
+                if (adminNotifyResult.ok) console.log(`[${timestamp}] /api/create-order: Admin notification sent.`);
+                else console.error(`[${timestamp}] /api/create-order: Failed to send admin notification:`, adminNotifyResult);
+            } catch (notifyError) { console.error(`[${timestamp}] /api/create-order: Error sending admin notification:`, notifyError); }
         }
         
-        // --- НОВОЕ: Уведомление пользователю в чат ---
-        let userMessageText = "";
-        if (orderData.items && orderData.items.length > 0 && orderData.userInfo && orderData.userInfo.id) {
-            const serviceTitle = orderData.items[0].title;
-            const userChatId = orderData.userInfo.id; // ID чата пользователя
-
-            userMessageText = `Вы записаны на услугу: "<b>${serviceTitle}</b>".\nМенеджер перезвонит вам с номера, окончание 0911.`;
-            
-            if (botToken) {
-                try {
-                    const userNotifyResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ chat_id: userChatId, text: userMessageText, parse_mode: 'HTML' })
-                    });
-                    const userNotifyResult = await userNotifyResponse.json();
-                    if (userNotifyResult.ok) {
-                        console.log(`[${timestamp}] /api/create-order: User confirmation sent successfully to chat_id ${userChatId}.`);
-                    } else {
-                        console.error(`[${timestamp}] /api/create-order: Failed to send user confirmation. Response:`, JSON.stringify(userNotifyResult));
-                    }
-                } catch (notifyError) {
-                    console.error(`[${timestamp}] /api/create-order: Error sending user confirmation:`, notifyError);
-                }
-            } else {
-                 console.error(`[${timestamp}] /api/create-order: TELEGRAM_BOT_TOKEN (for user message) is not set.`);
+        // --- Уведомление пользователю в чат ---
+        if (orderData.userInfo && orderData.userInfo.id && botToken) {
+            const userChatId = orderData.userInfo.id;
+            let userMessageText = "<b>Ваша заявка принята!</b>\n\n";
+            if (orderData.items && orderData.items.length > 0) {
+                userMessageText += "Вы записаны на следующие услуги:\n";
+                orderData.items.forEach(item => {
+                    userMessageText += `- ${item.title}\n`;
+                });
+                userMessageText += "\n";
             }
+            userMessageText += `Менеджер перезвонит вам с номера, окончание 0911, для подтверждения деталей.`;
+            
+            try {
+                const userNotifyResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: userChatId, text: userMessageText, parse_mode: 'HTML' })
+                });
+                const userNotifyResult = await userNotifyResponse.json();
+                if (userNotifyResult.ok) console.log(`[${timestamp}] /api/create-order: User confirmation sent to ${userChatId}.`);
+                else console.error(`[${timestamp}] /api/create-order: Failed to send user confirmation:`, userNotifyResult);
+            } catch (notifyError) { console.error(`[${timestamp}] /api/create-order: Error sending user confirmation:`, notifyError); }
         }
-        // --- КОНЕЦ УВЕДОМЛЕНИЯ ПОЛЬЗОВАТЕЛЮ ---
 
         console.log(`[${timestamp}] /api/create-order: Order processed (notifications attempt made).`);
         res.status(200).json({
             status: 'success',
-            message: 'Заказ успешно получен! Подробности отправлены вам в чат.', // Сообщение для Mini App
+            message: 'Заказ успешно получен! Подробности отправлены вам в чат.',
             receivedOrderId: `ORDER_${Date.now()}`
         });
 
     } catch (error) {
+        // ... (блок catch без изменений) ...
         console.error(`[${timestamp}] !!! UNEXPECTED ERROR in /api/create-order !!!`);
-        // ... (остальной блок catch без изменений) ...
         console.error(`[${timestamp}] Error message: ${error.message}`);
         console.error(`[${timestamp}] Error stack: ${error.stack}`);
         if (req?.body) {
