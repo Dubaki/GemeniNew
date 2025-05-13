@@ -1,3 +1,4 @@
+/* Файл: css/styles.css (ПОЛНАЯ ЗАМЕНА) */
 :root {
     --tg-theme-bg-color: #e6f7ff;
     --tg-theme-text-color: #003366;
@@ -5,6 +6,7 @@
     --tg-theme-button-text-color: #ffffff;
     --tg-theme-secondary-bg-color: #cceeff;
     --accent-color: #0099cc;
+    --cart-icon-highlight-color: #FFC107; /* Новый цвет для подсветки иконки корзины (янтарный) */
 }
 
 body {
@@ -13,7 +15,7 @@ body {
     padding: 0;
     background-color: var(--tg-theme-bg-color);
     color: var(--tg-theme-text-color);
-    padding-bottom: 80px; /* Оставляем место для возможной панели корзины или MainButton */
+    padding-bottom: 80px;
 }
 
 .container {
@@ -35,17 +37,34 @@ header {
     margin-bottom: 8px;
 }
 
+/* === СТИЛИ ДЛЯ ИКОНКИ КОРЗИНЫ В ШАПКЕ === */
 .cart-icon {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 15px; /* Немного подвинул для лучшего вида с тенью */
+    right: 15px; /* Немного подвинул */
     cursor: pointer;
+    padding: 5px; /* Добавим немного пространства вокруг иконки для тени */
+    border-radius: 8px; /* Скруглим углы для тени */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    z-index: 10; /* Чтобы была поверх других элементов, если что */
 }
+
+.cart-icon svg { /* Стили для самой SVG иконки внутри */
+    display: block; /* Убирает возможный лишний отступ снизу */
+}
+
+
+.cart-icon:hover {
+    transform: scale(1.15) rotate(5deg); /* Движение: увеличение и небольшой поворот */
+    box-shadow: 0 0 10px 2px var(--cart-icon-highlight-color); /* Подсветка по контуру */
+}
+/* ======================================== */
+
 
 .cart-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: 0px;  /* Скорректировано положение */
+    right: 0px; /* Скорректировано положение */
     background-color: var(--accent-color);
     color: white;
     border-radius: 50%;
@@ -55,6 +74,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 11; /* Чтобы был поверх самой .cart-icon */
 }
 
 .tab-buttons {
@@ -108,14 +128,24 @@ header {
     padding: 16px;
     display: flex;
     align-items: center;
-    transition: transform 0.2s;
     position: relative;
     overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    border: 2px solid transparent; /* Базовая прозрачная рамка */
 }
 
 .service-card:hover {
-    transform: scale(1.02);
+    transform: scale(1.02); /* Оставляем этот эффект, если нравится */
 }
+
+/* Класс-маркер для выбранных, основные стили задаются через JS */
+.service-card.selected {
+    /* Сюда можно добавить стили, которые не зависят от цвета, если нужно,
+       например, чуть больший transform или еще что-то.
+       Сейчас вся подсветка (border-color и box-shadow) задается через JS.
+    */
+}
+
 
 .service-icon {
     width: 50px;
@@ -176,7 +206,6 @@ header {
     background-color: var(--tg-theme-secondary-bg-color);
     border-radius: 12px;
     margin-top: 30px;
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */ /* Можно убрать или оставить тень */
 }
 
 .address-btn {
@@ -189,8 +218,8 @@ header {
     border: 1px solid var(--accent-color);
     border-radius: 12px;
     padding: 20px;
-    width: 100%; /* Занимает всю ширину родителя */
-    box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
+    width: 100%;
+    box-sizing: border-box;
     color: var(--tg-theme-text-color);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -262,7 +291,7 @@ header {
 .cart-item {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Выравниваем по центру для кнопки удаления */
+    align-items: center;
     padding: 10px 0;
     border-bottom: 1px solid rgba(0, 153, 204, 0.2);
 }
@@ -273,7 +302,7 @@ header {
 
 .cart-item-info {
     flex: 1;
-    margin-right: 10px; /* Добавим отступ от кнопки удаления */
+    margin-right: 10px;
 }
 
 .cart-item-title {
@@ -290,13 +319,12 @@ header {
     border: none;
     color: #ff4d4d;
     cursor: pointer;
-    padding: 5px; /* Увеличим область клика */
+    padding: 5px;
 }
 
 .cart-item-remove i {
-    display: block; /* Чтобы иконка была блочным элементом для правильного размера */
+    display: block;
 }
-
 
 .cart-total {
     display: flex;
@@ -321,7 +349,7 @@ header {
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s ease;
-    display: flex; /* Для выравнивания иконки загрузки */
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -334,19 +362,17 @@ header {
     background-color: rgba(255, 0, 0, 0.2);
 }
 
-
 .submit-cart {
     background-color: var(--accent-color);
     color: white;
 }
 .submit-cart:hover {
-    background-color: #007baA; /* Немного темнее при наведении */
+    background-color: #007baA;
 }
 .submit-cart:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
 }
-
 
 .cart-phone {
     margin-bottom: 16px;
@@ -403,7 +429,7 @@ header {
 
 .success-icon {
     font-size: 48px;
-    color: #22c55e; /* Зеленый цвет для галочки */
+    color: #22c55e;
     margin-bottom: 16px;
 }
 
@@ -421,7 +447,6 @@ header {
     background-color: #007baA;
 }
 
-
 .loading {
     display: inline-block;
     width: 20px;
@@ -430,7 +455,7 @@ header {
     border-radius: 50%;
     border-top-color: #fff;
     animation: spin 1s ease-in-out infinite;
-    margin-right: 8px; /* Отступ от текста, если он есть */
+    margin-right: 8px;
 }
 
 @keyframes spin {
