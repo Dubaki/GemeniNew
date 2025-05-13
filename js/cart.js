@@ -1,38 +1,43 @@
-// Файл: GemeniNew/js/cart.js
+// Файл: js/cart.js (ПОЛНАЯ ЗАМЕНА)
 
-// Импортируем tg из telegram.js для доступа к HapticFeedback и showAlert
 import { tg } from './telegram.js';
+// Импортируем функции для управления подсветкой из services.js
+import { applyHighlightStyle, removeHighlightStyle } from './services.js';
 
-export let cart = []; // Массив для хранения товаров в корзине
+export let cart = [];
 
-// Функция для обновления значка корзины
+function findServiceCardElement(serviceId) {
+    return document.querySelector(`.service-card[data-service-id="${serviceId}"]`);
+}
+
 export function updateCartBadge() {
     const badge = document.getElementById('cartBadge');
     if (!badge) return;
-
     const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
     badge.textContent = totalQuantity;
     badge.style.display = totalQuantity > 0 ? 'flex' : 'none';
 }
 
-// Функция для отрисовки товаров в панели корзины
 export function renderCart() {
     const cartItemsEl = document.getElementById('cartItems');
     const cartTotalEl = document.getElementById('cartTotal');
     if (!cartItemsEl || !cartTotalEl) return;
 
-    cartItemsEl.innerHTML = ''; // Очищаем текущие элементы
+    cartItemsEl.innerHTML = ''; 
     
+    const submitCartButton = document.getElementById('submitCart'); // Получаем кнопку здесь
+
     if (cart.length === 0) {
         cartItemsEl.innerHTML = '<p style="text-align: center; opacity: 0.7;">Корзина пуста</p>';
         cartTotalEl.textContent = '0 ₽';
+        if (submitCartButton) submitCartButton.disabled = true; // Деактивируем кнопку если корзина пуста
         return;
     }
+    if (submitCartButton) submitCartButton.disabled = false; // Активируем, если есть товары
 
     cart.forEach(item => {
         const cartItemDiv = document.createElement('div');
         cartItemDiv.className = 'cart-item';
-        // === ИСПРАВЛЕНО ЗДЕСЬ ===
         cartItemDiv.innerHTML = `
             <div class="cart-item-info">
                 <div class="cart-item-title">${item.title} x${item.quantity}</div>
@@ -41,7 +46,6 @@ export function renderCart() {
             <button class="cart-item-remove" data-id="${item.id}">
                 <i data-feather="trash-2"></i>
             </button>`;
-        // =======================
         
         cartItemDiv.querySelector('.cart-item-remove').addEventListener('click', () => removeFromCart(item.id));
         cartItemsEl.appendChild(cartItemDiv);
@@ -51,14 +55,13 @@ export function renderCart() {
     cartTotalEl.textContent = `${total} ₽`;
     
     if (typeof feather !== 'undefined') {
-        feather.replace(); // Обновляем иконки удаления
+        feather.replace();
     }
 }
 
-// Функция добавления товара в корзину
-export function addToCart(service) { // service - это объект {id, title, price}
-    if (!service || typeof service.id === 'undefined' || typeof service.title === 'undefined' || typeof service.price === 'undefined') {
-        console.error("Попытка добавить невалидный сервис в корзину:", service);
+export function addToCart(service) { // service теперь полный объект, включая highlightColor
+    if (!service || typeof service.id === 'undefined' || !service.highlightColor) {
+        console.error("Попытка добавить невалидный сервис или сервис без highlightColor:", service);
         if (tg && tg.showAlert) tg.showAlert("Ошибка: Некорректные данные об услуге.");
         return;
     }
@@ -67,21 +70,22 @@ export function addToCart(service) { // service - это объект {id, title
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ ...service, quantity: 1 });
+        // Добавляем новый товар с его цветом подсветки
+        cart.push({ ...service, quantity: 1 }); 
+        const cardElement = findServiceCardElement(service.id);
+        if (cardElement) {
+            applyHighlightStyle(cardElement, service.highlightColor);
+        }
     }
 
-    // Визуальный фидбек на кнопке "Добавить"
+    // Фидбек на кнопке "Добавить"
     const button = document.querySelector(`.add-button[data-id="${service.id}"]`);
     if (button) {
-        const originalButtonColor = button.style.backgroundColor; 
         const originalButtonHTML = button.innerHTML; 
-
-        button.style.backgroundColor = '#22c55e'; // Зеленый цвет
         button.innerHTML = '<i data-feather="check"></i> Добавлено';
         if (typeof feather !== 'undefined') feather.replace();
         
         setTimeout(() => {
-            button.style.backgroundColor = originalButtonColor; 
             button.innerHTML = originalButtonHTML; 
             if (typeof feather !== 'undefined') feather.replace();
         }, 1500); 
@@ -92,36 +96,54 @@ export function addToCart(service) { // service - это объект {id, title
     }
 
     updateCartBadge();
-    renderCart(); // Перерисовываем корзину при добавлении, если она открыта
+    renderCart();
 }
 
-// Функция удаления товара из корзины
 export function removeFromCart(serviceId) {
+    const itemIndex = cart.findIndex(item => item.id === serviceId);
+    if (itemIndex === -1) return;
+
+    // Предполагаем полное удаление, как и раньше. Если будет логика количества,
+    // то removeHighlightStyle нужно вызывать только при quantity === 0.
     cart = cart.filter(item => item.id !== serviceId);
+
+    const cardElement = findServiceCardElement(serviceId);
+    if (cardElement) {
+         // Убедимся, что товара действительно нет в корзине перед снятием подсветки
+        if (!cart.some(item => item.id === serviceId)) {
+            removeHighlightStyle(cardElement);
+        }
+    }
+    
     updateCartBadge();
-    renderCart(); // Важно перерисовать корзину
+    renderCart();
 }
 
-// Функция очистки корзины
 export function clearCart() {
+    cart.forEach(itemInCart => {
+        const cardElement = findServiceCardElement(itemInCart.id);
+        if (cardElement) {
+            removeHighlightStyle(cardElement);
+        }
+    });
+
     cart = [];
     updateCartBadge();
     renderCart();
-    // Закрываем панель корзины после очистки
+    
     const cartPanel = document.getElementById('cartPanel');
     const overlay = document.getElementById('overlay');
     if (cartPanel) cartPanel.classList.remove('visible');
     if (overlay) overlay.classList.remove('visible');
 }
 
-// Функция для отображения сообщения об успехе
 export function showSuccessMessage() {
     const successMessageEl = document.getElementById('successMessage');
     const overlayEl = document.getElementById('overlay');
     if (successMessageEl) successMessageEl.classList.add('visible');
     if (overlayEl) overlayEl.classList.add('visible');
     
-    clearCart(); 
+    clearCart(); // clearCart теперь сам убирает подсветку
     const cartPanel = document.getElementById('cartPanel');
     if (cartPanel) cartPanel.classList.remove('visible');
 }
