@@ -1,23 +1,14 @@
 // Файл: js/services.js (ПОЛНАЯ ЗАМЕНА)
 
-import { cart } from './cart.js'; // Для проверки, есть ли услуга в корзине
+import { cart } from './cart.js';
+import { tg } from './telegram.js'; // Для tg.HapticFeedback
 
-// Палитра уникальных цветов для подсветки. Добавьте/измените по вкусу.
-// Нужно как минимум 8 для ваших текущих услуг.
 const UNIQUE_HIGHLIGHT_COLORS = [
-    '#4CAF50', // Зеленый
-    '#2196F3', // Синий
-    '#FF9800', // Оранжевый
-    '#9C27B0', // Фиолетовый
-    '#E91E63', // Розовый
-    '#00BCD4', // Бирюзовый
-    '#FF5722', // Глубокий оранжевый
-    '#8BC34A', // Светло-зеленый
-    '#673AB7', // Глубокий фиолетовый
-    '#03A9F4', // Голубой
+    '#4CAF50', '#2196F3', '#FF9800', '#9C27B0',
+    '#E91E63', '#00BCD4', '#FF5722', '#8BC34A',
+    '#673AB7', '#03A9F4', '#FFEB3B', '#795548' 
 ];
 
-// Присваиваем цвета услугам. Если услуг больше, чем цветов, они начнут повторяться (или добавьте больше цветов).
 let colorIndex = 0;
 function getNextHighlightColor() {
     const color = UNIQUE_HIGHLIGHT_COLORS[colorIndex % UNIQUE_HIGHLIGHT_COLORS.length];
@@ -40,18 +31,16 @@ export const services = {
     ]
 };
 
-// Функция для применения стилей подсветки (устанавливает inline-стили)
 export function applyCardHighlight(element, color) {
     if (!element || !color) return;
     element.style.borderColor = color;
-    element.style.boxShadow = `0 0 10px 1px ${color}`; // Тень того же цвета
+    element.style.boxShadow = `0 0 10px 1px ${color}`;
 }
 
-// Функция для снятия стилей подсветки (сбрасывает inline-стили)
 export function removeCardHighlight(element) {
     if (!element) return;
-    element.style.borderColor = ''; // Вернет к значению из CSS (transparent)
-    element.style.boxShadow = '';   // Уберет тень
+    element.style.borderColor = '';
+    element.style.boxShadow = '';
 }
 
 export function createServiceCard(service, addToCartCallback) {
@@ -59,9 +48,10 @@ export function createServiceCard(service, addToCartCallback) {
     card.className = 'service-card';
     card.dataset.serviceId = service.id;
 
-    // Если товар уже в корзине при начальной отрисовке, подсвечиваем его и добавляем класс
-    if (cart.some(item => item.id === service.id)) {
-        card.classList.add('selected-in-cart'); // Маркер, что товар в корзине
+    const isInCart = cart.some(item => item.id === service.id);
+
+    if (isInCart) {
+        card.classList.add('selected-in-cart');
         applyCardHighlight(card, service.highlightColor);
     }
 
@@ -70,7 +60,6 @@ export function createServiceCard(service, addToCartCallback) {
     });
 
     card.addEventListener('mouseleave', () => {
-        // Убираем подсветку при уходе мыши ТОЛЬКО ЕСЛИ товар не в корзине
         if (!card.classList.contains('selected-in-cart')) {
             removeCardHighlight(card);
         }
@@ -83,13 +72,18 @@ export function createServiceCard(service, addToCartCallback) {
             <div class="service-price">${service.price} ₽</div>
             <div class="service-description">${service.description}</div>
             <button class="add-button" data-id="${service.id}">
-                <i data-feather="plus"></i> Добавить
+                ${isInCart ? '<i data-feather="check"></i> В корзине' : '<i data-feather="plus"></i> Добавить'}
             </button>
         </div>`;
     
-    card.querySelector('.add-button').addEventListener('click', e => {
+    const addButton = card.querySelector('.add-button');
+    if (isInCart) {
+        addButton.disabled = true; // Делаем неактивной, если уже в корзине
+    }
+
+    addButton.addEventListener('click', e => {
         e.stopPropagation();
-        addToCartCallback(service); // Передаем весь объект service
+        addToCartCallback(service); // addToCart теперь сама обновит кнопку, если нужно
     });
     
     return card;
@@ -102,10 +96,6 @@ export function renderServices(containerId, serviceList, addToCartCallback) {
         return;
     }
     container.innerHTML = ''; 
-    
-    // Сбрасываем colorIndex для каждой категории, чтобы цвета были разнообразнее, если категории рендерятся отдельно
-    // Если все услуги рендерятся одним вызовом, это не нужно.
-    // Для нашего случая (две категории рендерятся последовательно) это даст более разнообразные цвета.
     colorIndex = 0;
 
     serviceList.forEach(service => {
